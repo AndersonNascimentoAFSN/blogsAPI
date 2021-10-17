@@ -1,0 +1,11 @@
+apps:
+  -name: app
+  script: ./src/api/server.js
+  exec_mode: cluster
+  instances: 2
+  max_memory_restart: 20M
+  exp_backoff_restart_delay: 100
+  env_prod:
+    ENVIRONMENT: PRODUCTION
+  env_homolog:
+    ENVIRONMENT: HOMOLOG

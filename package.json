@@ -13,12 +13,13 @@
     "joi": "^17.4.2",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "2.1.0",
+    "pm2": "^5.1.2",
     "sequelize": "6.3.4",
     "shelljs": "0.8.4"
   },
   "scripts": {
     "prestart": "npx sequelize-cli db:create && npx sequelize-cli db:migrate $",
-    "start": "node .",
+    "start": "pm2-runtime start ecosystem.config.yml",
     "drop": "npx sequelize-cli db:drop $",
     "seed": "npx sequelize-cli db:seed:all $",
     "test": "jest --runInBand",
