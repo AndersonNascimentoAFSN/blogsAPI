@@ -4,7 +4,7 @@ module.exports = async (req, res) => {
   const { title, content, categoryIds } = req.body;
   const { id: userId } = req.user;
 
-  const createdPost = await PostService.createPost({ title, content, categoryIds, userId });
+  const createdPost = await PostService.createPost({ title, content, userId }, categoryIds);
 
   if (createdPost.message) {
     return res
