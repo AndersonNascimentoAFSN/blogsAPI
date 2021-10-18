@@ -1,19 +1,32 @@
+const Sequelize = require('sequelize');
+const config = require('../../config/config');
 const { BlogPost } = require('../../models');
+
+const env = process.env.NODE_ENV || 'development';
+const sequelize = new Sequelize(config[env]);
+
 const blogPostSchema = require('../../schemas/blogPost');
 const BlogPostAllCategoryIdExists = require('../../utils/BlogPostAllCategoryIdExists');
 
 module.exports = async (newPostData, categoryIds) => {
-  const { error } = blogPostSchema.blogPostValidations({ ...newPostData, categoryIds });
+  const t = await sequelize.transaction();
 
-  if (error) return { status: 400, message: error.details[0].message };
+  try {
+    const { error } = blogPostSchema.blogPostValidations({ ...newPostData, categoryIds });
+    if (error) return { status: 400, message: error.details[0].message };
 
-  const post = await BlogPostAllCategoryIdExists(categoryIds);
+    const post = await BlogPostAllCategoryIdExists(categoryIds);
+    if (!post) return { status: 400, message: '"categoryIds" not found' };
 
-  if (!post) return { status: 400, message: '"categoryIds" not found' };
+    const createdPost = await BlogPost.create(newPostData);
 
-  const createdPost = await BlogPost.create(newPostData);
+    createdPost.setCategories(categoryIds);
 
-  createdPost.setCategories(categoryIds);
-  
-  return createdPost;
+    await t.commit();
+
+    return createdPost;
+  } catch (e) {
+    await t.rollback();
+    return { status: 500, message: e.message };
+  }
 };
